@@ -1,7 +1,7 @@
 from notes.forms import WARNING
 from notes.models import Note
 from notes.tests.constants import PAGE_NOT_FOUND, PAGE_OK
-from notes.tests.notes_test_case import NotesTestCase
+from notes.tests.notes_fixtures import NotesTestCase
 from pytils.translit import slugify
 
 

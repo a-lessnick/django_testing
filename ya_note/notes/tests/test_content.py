@@ -1,4 +1,4 @@
-from notes.tests.notes_test_case import NotesTestCase
+from notes.tests.notes_fixtures import NotesTestCase
 from notes.forms import NoteForm
 
 

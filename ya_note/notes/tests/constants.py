@@ -1,3 +1,4 @@
+"""Константы для тестов unittest."""
 from http import HTTPStatus
 
 PAGE_OK = HTTPStatus.OK
