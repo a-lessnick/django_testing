@@ -1,66 +1,52 @@
 from http import HTTPStatus
 
 import pytest
-from django.urls import reverse
+from django.test import Client
 from pytest_django.asserts import assertRedirects
+from pytest_lazyfixture import lazy_fixture as lf
 
-LOGIN_URL = reverse("users:login")
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    'name, args',
-    (
-        ('news:detail', pytest.lazy_fixture('pk_for_args')),
-        ('news:home', None),
-        ('users:login', None),
-        ('users:logout', None),
-        ('users:signup', None),
-
-    )
-)
-def test_availability_home_page_for_anonymous_user(client, name, args):
-    """
-    Анонимный пользователь может попасть на главную страинцу, страницы
-    регистрации, входа в учётную запись и выхода из неё
-    """
-    response = client.get(reverse(name, args=args))
-    assert response.status_code == HTTPStatus.OK
+PAGE_OK = HTTPStatus.OK
+PAGE_NOT_FOUND = HTTPStatus.NOT_FOUND
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'parametrized_client, expected_status',
+    'url, parametrized_client, expected_status',
     (
-        (pytest.lazy_fixture('auth_client'), HTTPStatus.OK),
-        (pytest.lazy_fixture('another_author'), HTTPStatus.NOT_FOUND)
+        (lf('url_news_home'), Client(), PAGE_OK),
+        (lf('url_user_login'), Client(), PAGE_OK),
+        (lf('url_user_logout'), Client(), PAGE_OK),
+        (lf('url_user_signup'), Client(), PAGE_OK),
+        (lf('url_news_detail'), Client(), PAGE_OK),
+        (lf('url_comment_edit'), lf('auth_client'), PAGE_OK),
+        (lf('url_comment_edit'), lf('another_author'), PAGE_NOT_FOUND),
+        (lf('url_comment_delete'), lf('auth_client'), PAGE_OK),
+        (lf('url_comment_delete'), lf('another_author'), PAGE_NOT_FOUND),
     ),
 )
-@pytest.mark.parametrize('name', ('news:edit', 'news:delete'))
-def test_availability_pages_edit_delete_for_author_and_reader(
-    parametrized_client, expected_status, comment, name
+def test_availability_pages_for_users(
+        url, parametrized_client, expected_status
 ):
     """
-    Зарегистрированный пользователь может редактировать или удалять
-    свои комментарии, но не может чужие.
-    """
-    response = parametrized_client.get(reverse(name, args=(comment.pk,)))
+    Тестирование доступности страниц анонимному
+    и зарегистрированным пользователям."""
+    response = parametrized_client.get(url)
     assert response.status_code == expected_status
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'name',
-    ('news:edit', 'news:delete')
+    (lf('url_comment_edit'), lf('url_comment_delete'))
 )
 def test_availability_pages_edit_delete_for_anonymous_user(
-    client, comment, name
+    client, comment, name, url_user_login
 ):
     """
-    Анoнимному пользователю не доступно редактирование и удаление
-    комментариев он должен перенаправляться на страницу авторизации
+    Анонимному пользователю не доступно редактирование и удаление
+    комментариев он должен перенаправляться на страницу авторизации.
     """
-    url = reverse(name, args=(comment.pk,))
-    expected_url = f'{LOGIN_URL}?next={url}'
+    url = name
+    expected_url = f'{url_user_login}?next={url}'
     response = client.get(url)
     assertRedirects(response, expected_url)

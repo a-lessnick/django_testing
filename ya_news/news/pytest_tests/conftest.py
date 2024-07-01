@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from django.conf import settings
+from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
@@ -16,7 +17,8 @@ def author(django_user_model):
 
 
 @pytest.fixture
-def another_author(django_user_model, client):
+def another_author(django_user_model):
+    client = Client()
     client.force_login(
         django_user_model.objects.create(username='Другой автор')
     )
@@ -24,7 +26,8 @@ def another_author(django_user_model, client):
 
 
 @pytest.fixture
-def auth_client(author, client):
+def auth_client(author):
+    client = Client()
     client.force_login(author)
     return client
 
@@ -49,17 +52,7 @@ def all_news():
         )
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     ]
-    return News.objects.bulk_create(all_news)
-
-
-@pytest.fixture
-def detail_url(news):
-    return reverse('news:detail', args=(news.pk,))
-
-
-@pytest.fixture
-def pk_for_args(news):
-    return news.pk,
+    News.objects.bulk_create(all_news)
 
 
 @pytest.fixture
@@ -84,19 +77,35 @@ def comments(author, news):
 
 
 @pytest.fixture
-def comment_data(news, author):
-    return {
-        'text': 'Обновлённый текст комментария.',
-        'news': news,
-        'author': author
-    }
+def url_news_detail(news):
+    return reverse('news:detail', args=(news.id,))
 
 
 @pytest.fixture
-def delete_comment_url(comment):
-    return reverse('news:delete', args=(comment.pk,))
+def url_comment_delete(comment):
+    return reverse('news:delete', args=(comment.id,))
 
 
 @pytest.fixture
-def edit_comment_url(comment):
-    return reverse('news:edit', args=(comment.pk,))
+def url_comment_edit(comment):
+    return reverse('news:edit', args=(comment.id,))
+
+
+@pytest.fixture
+def url_news_home():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def url_user_login():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def url_user_logout():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def url_user_signup():
+    return reverse('users:signup')
