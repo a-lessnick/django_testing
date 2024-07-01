@@ -12,16 +12,16 @@ def test_news_count_on_home_page(client, all_news, url_news_home):
     {settings.NEWS_COUNT_ON_HOME_PAGE}.
     """
     response = client.get(url_news_home)
-    news = response.context['object_list']
-    news_count = news.count()
+    news_on_home = response.context['object_list']
+    news_count = news_on_home.count()
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 def test_news_order_on_home_page(client, all_news, url_news_home):
     """Новости отсортированы от самой свежей к самой старой."""
     response = client.get(url_news_home)
-    news = response.context['object_list']
-    all_dates = [one_news.date for one_news in news]
+    news_sorted = response.context['object_list']
+    all_dates = [one_news.date for one_news in news_sorted]
     sorted_dates = sorted(all_dates, reverse=True)
     assert all_dates == sorted_dates
 
