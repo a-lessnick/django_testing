@@ -4,9 +4,9 @@ from http import HTTPStatus
 import pytest
 from pytest_django.asserts import assertFormError, assertRedirects
 
-from news.pytest_tests.constants import COMMENT_DATA
 from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
+from news.pytest_tests.constants import COMMENT_DATA
 
 pytestmark = pytest.mark.django_db
 
@@ -20,16 +20,21 @@ def test_anonymous_user_cant_create_comment(
     assert Comment.objects.count() == start_comment_count
 
 
-def test_user_can_create_comment(auth_client, url_news_detail):
+def test_user_can_create_comment(
+        author, auth_client, url_news_detail, one_news
+):
     """Авторизованный пользователь может отправить комментарий."""
-    start_comment_count = Comment.objects.count()
+    Comment.objects.all().delete()
     auth_client.post(url_news_detail, data=COMMENT_DATA)
-    assert Comment.objects.count() == start_comment_count + 1
+    start_comment_count = Comment.objects.count()
+    assert Comment.objects.count() == start_comment_count
     new_comment = Comment.objects.get()
     assert new_comment.text == COMMENT_DATA['text']
+    assert new_comment.author == author
+    assert new_comment.news == one_news
 
 
-def test_user_cant_use_bad_words(auth_client, news, url_news_detail):
+def test_user_cant_use_bad_words(auth_client, one_news, url_news_detail):
     """
     Если комментарий содержит запрещённые слова, он не будет опубликован,
     а форма вернёт ошибку.
@@ -58,13 +63,16 @@ def test_author_can_delete_comment(
 
 
 def test_author_can_edit_comment(
-        auth_client, comment, url_news_detail, url_comment_edit
+        author, auth_client, comment, url_news_detail,
+        url_comment_edit, one_news
 ):
     """Авторизованный пользователь может редактировать свои комментарии."""
     response = auth_client.post(url_comment_edit, data=COMMENT_DATA)
     assertRedirects(response, url_news_detail + '#comments')
     comment.refresh_from_db()
     assert comment.text == COMMENT_DATA['text']
+    assert comment.author == author
+    assert comment.news == one_news
 
 
 def test_user_cant_edit_comment_of_another_user(

@@ -21,12 +21,12 @@ def test_news_order_on_home_page(client, all_news, url_news_home):
     """Новости отсортированы от самой свежей к самой старой."""
     response = client.get(url_news_home)
     news_sorted = response.context['object_list']
-    all_dates = [one_news.date for one_news in news_sorted]
+    all_dates = [news.date for news in news_sorted]
     sorted_dates = sorted(all_dates, reverse=True)
     assert all_dates == sorted_dates
 
 
-def test_comments_order(client, news, comments, url_news_detail):
+def test_comments_order(client, one_news, comments, url_news_detail):
     """
     Комментарии на странице отдельной новости отсортированы
     старые в начале списка, новые — в конце.
@@ -41,7 +41,7 @@ def test_comments_order(client, news, comments, url_news_detail):
     assert all_comments == sorted_comments
 
 
-def test_anonymous_client_has_no_form(client, news, url_news_detail):
+def test_anonymous_client_has_no_form(client, one_news, url_news_detail):
     """
     Анонимному пользователю недоступна форма для
     отправки комментария на странице отдельной новости.
@@ -50,7 +50,7 @@ def test_anonymous_client_has_no_form(client, news, url_news_detail):
     assert 'form' not in response.context
 
 
-def test_authorized_client_has_form(admin_client, news, url_news_detail):
+def test_authorized_client_has_form(admin_client, one_news, url_news_detail):
     """
     Авторизованному пользователю доступна форма для отправки
     комментария на странице отдельной новости.

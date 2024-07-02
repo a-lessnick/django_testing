@@ -33,7 +33,7 @@ def auth_client(author):
 
 
 @pytest.fixture
-def news():
+def one_news():
     news = News.objects.create(
         title='Заголовок',
         text='Текст заметки',
@@ -56,29 +56,30 @@ def all_news():
 
 
 @pytest.fixture
-def comment(author, news):
+def comment(author, one_news):
     comment = Comment.objects.create(
         text='Текст комментария.',
         author=author,
-        news=news
+        news=one_news
+
     )
     return comment
 
 
 @pytest.fixture
-def comments(author, news):
+def comments(author, one_news):
     now = timezone.now()
     for index in range(COMMENTS_COUNT):
         new_comment = Comment.objects.create(
-            news=news, author=author, text=f'Tекст {index}',
+            news=one_news, author=author, text=f'Tекст {index}',
         )
         new_comment.created = now + timedelta(days=index)
         new_comment.save()
 
 
 @pytest.fixture
-def url_news_detail(news):
-    return reverse('news:detail', args=(news.id,))
+def url_news_detail(one_news):
+    return reverse('news:detail', args=(one_news.id,))
 
 
 @pytest.fixture

@@ -5,8 +5,9 @@ from pytest_lazyfixture import lazy_fixture as lf
 
 from news.pytest_tests.constants import PAGE_NOT_FOUND, PAGE_OK
 
+pytestmark = pytest.mark.django_db
 
-@pytest.mark.django_db
+
 @pytest.mark.parametrize(
     'url, parametrized_client, expected_status',
     (
@@ -32,7 +33,6 @@ def test_availability_pages_for_users(
     assert response.status_code == expected_status
 
 
-@pytest.mark.django_db
 @pytest.mark.parametrize(
     'name',
     (lf('url_comment_edit'), lf('url_comment_delete'))

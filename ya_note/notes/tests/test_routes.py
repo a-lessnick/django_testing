@@ -26,7 +26,7 @@ class TestRoutes(NotesTestCase):
         )
         for url in urls:
             with self.subTest(name=url):
-                response = self.first_author_client.get(url)
+                response = self.author_client.get(url)
                 self.assertEqual(response.status_code, PAGE_OK)
 
     def test_pages_availability_for_reader(self):

@@ -1,5 +1,5 @@
-from notes.tests.notes_fixtures import NotesTestCase
 from notes.forms import NoteForm
+from notes.tests.notes_fixtures import NotesTestCase
 
 
 class TestContent(NotesTestCase):
@@ -9,9 +9,9 @@ class TestContent(NotesTestCase):
         Тест того, что в список заметок одного пользователя
         попадают его заметки.
         """
-        response = self.first_author_client.get(self.url_notes_list)
+        response = self.author_client.get(self.url_notes_list)
         self.assertIn(
-            self.note_from_first_author, response.context['object_list']
+            self.note_from_author, response.context['object_list']
         )
 
     def test_notes_list_for_second_author(self):
@@ -19,9 +19,9 @@ class TestContent(NotesTestCase):
         Тест того, что в список заметок одного пользователя
         не попадают заметки другого пользователя.
         """
-        response = self.first_author_client.get(self.url_notes_list)
+        response = self.author_client.get(self.url_notes_list)
         self.assertNotIn(
-            self.note_from_second_author, response.context['object_list']
+            self.note_from_another_author, response.context['object_list']
         )
 
     def test_pages_contains_form(self):
@@ -32,6 +32,6 @@ class TestContent(NotesTestCase):
         urls = (self.url_notes_add, self.url_notes_edit)
         for url in urls:
             with self.subTest(name=url):
-                response = self.first_author_client.get(url)
+                response = self.author_client.get(url)
                 self.assertIn('form', response.context)
                 self.assertIsInstance(response.context['form'], NoteForm)
