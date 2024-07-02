@@ -4,12 +4,13 @@ from http import HTTPStatus
 import pytest
 from pytest_django.asserts import assertFormError, assertRedirects
 
-from constants import COMMENT_DATA
+from news.pytest_tests.constants import COMMENT_DATA
 from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
 
+pytestmark = pytest.mark.django_db
 
-@pytest.mark.django_db
+
 def test_anonymous_user_cant_create_comment(
         client, url_news_detail
 ):
@@ -46,7 +47,6 @@ def test_user_cant_use_bad_words(auth_client, news, url_news_detail):
     )
 
 
-@pytest.mark.django_db
 def test_author_can_delete_comment(
     auth_client, url_news_detail, url_comment_delete
 ):

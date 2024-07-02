@@ -1,12 +1,9 @@
-from http import HTTPStatus
-
 import pytest
 from django.test import Client
 from pytest_django.asserts import assertRedirects
 from pytest_lazyfixture import lazy_fixture as lf
 
-PAGE_OK = HTTPStatus.OK
-PAGE_NOT_FOUND = HTTPStatus.NOT_FOUND
+from news.pytest_tests.constants import PAGE_NOT_FOUND, PAGE_OK
 
 
 @pytest.mark.django_db
@@ -29,7 +26,8 @@ def test_availability_pages_for_users(
 ):
     """
     Тестирование доступности страниц анонимному
-    и зарегистрированным пользователям."""
+    и зарегистрированным пользователям.
+    """
     response = parametrized_client.get(url)
     assert response.status_code == expected_status
 

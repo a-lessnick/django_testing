@@ -7,9 +7,9 @@ pytestmark = pytest.mark.django_db
 
 
 def test_news_count_on_home_page(client, all_news, url_news_home):
-    f"""
-    Количество новостей на главной странице — не более 
-    {settings.NEWS_COUNT_ON_HOME_PAGE}.
+    """
+    Количество новостей на главной странице — не более
+    settings.NEWS_COUNT_ON_HOME_PAGE.
     """
     response = client.get(url_news_home)
     news_on_home = response.context['object_list']
